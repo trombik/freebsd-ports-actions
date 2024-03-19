@@ -105,7 +105,7 @@ jobs:
           # is available in the latest branch (-b). Always build ORIGINS (-C).
           # Add some tests (-t).
           echo "Starting build."
-          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b latest -t -C -J "${{ inputs.maxjobs }}" ${ORIGINS}
+          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b latest -z default -t -C -J "${{ inputs.maxjobs }}" ${ORIGINS}
 
           poudriere status -fH
           poudriere status -f
