@@ -75,7 +75,7 @@ jobs:
           echo "JAIL_NAME=${JAIL_NAME}"
 
           poudriere ports -c -p default -m git+https -B "${{ inputs.freebsd_ports_ref }}"
-          poudriere jail -c -j "${JAIL_NAME}" -m ftp -v "${{ inputs.freebsd_release }}-RELEASE"
+          poudriere jail -c -j "${JAIL_NAME}" -m ftp -v "${{ inputs.freebsd_versions }}-RELEASE"
 
         run: |
           set -e -x
