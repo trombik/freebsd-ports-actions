@@ -60,7 +60,7 @@ jobs:
           DISTFILES_CACHE=/home/runner/work/distfiles
           CCACHE_DIR=/home/runner/work/ccache
           SVN_HOST=svn.FreeBSD.org
-          GIT_PORTSURL=https://github.com/freebsd/freebsd-ports.git
+          GIT_PORTSURL=github.com/freebsd/freebsd-ports.git
           BASEFS=/home/runner/work/poudriere
           " >> /usr/local/etc/poudriere.conf
           echo "The contents of /usr/local/etc/poudriere.conf"
