@@ -52,10 +52,10 @@ jobs:
           # A list of ports to check
           ORIGINS=`find * -type d -depth 1`
           echo "ORIGINS: ${ORIGINS}"
+
           PORTSDIR=/home/runner/work/poudriere/ports/default
           export PORTSDIR
           echo "PORTSDIR=${PORTSDIR}"
-          ls -1 ${PORTSDIR}
 
           for O in ${ORIGINS}; do
             portlint -abm "${O}"
