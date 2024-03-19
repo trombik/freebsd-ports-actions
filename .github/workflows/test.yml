@@ -176,5 +176,6 @@ jobs:
 
     - name: Cache packages
       uses: actions/cache@v4
+      with:
         path: /home/runner/work/poudriere/data/packages
         key: ${{ hashFiles('PACKAGES.sha256') }}
