@@ -39,7 +39,7 @@ jobs:
       id: test
       uses: vmactions/freebsd-vm@v1
       with:
-        release: ${{ matrix.freebsd_release }}
+        release: ${{ matrix.freebsd_versions }}
         usesh: true
         sync: rsync
         copyback: true
@@ -94,7 +94,7 @@ jobs:
           echo "List of jails"
           poudriere jail -l
 
-          VERSION=`echo "${{ inputs.freebsd_release }}" | tr -d '.'`
+          VERSION=`echo "${{ inputs.freebsd_versions }}" | tr -d '.'`
           ARCH="amd64"
           JAIL_NAME="${VERSION}${ARCH}"
           echo "VERSION=${VERSION}"
@@ -148,7 +148,7 @@ jobs:
     - name: Upload logs
       uses: actions/upload-artifact@v4
       with:
-        name: poudriere-logs-${{ github.sha }}-${{ inputs.freebsd_release }}
+        name: poudriere-logs-${{ github.sha }}-${{ inputs.freebsd_versions }}
         path: /home/runner/work/poudriere/data/logs
 
 
