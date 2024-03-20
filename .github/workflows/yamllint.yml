@@ -31,7 +31,7 @@ jobs:
             echo ".github/workflows/yamllint.conf exists. Using it."
           else
             echo ".github/workflows/yamllint.conf does not exist. Creating it."
-            printf "${{ inputs.config }}" > .github/workflows/yamllint.conf
+            echo "${{ inputs.config }}" > .github/workflows/yamllint.conf
           fi
 
           echo "Using the following configuration:"
