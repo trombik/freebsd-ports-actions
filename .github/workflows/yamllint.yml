@@ -36,4 +36,4 @@ jobs:
 
           echo "Using the following configuration:"
           cat .github/workflows/yamllint.conf
-          yamllint -c .github/workflows/yamllint.conf
+          yamllint -c .github/workflows/yamllint.conf .
