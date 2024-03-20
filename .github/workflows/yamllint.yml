@@ -1,0 +1,39 @@
+name: Run yamllint
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: The contents of yamllint.conf. If .github/workflows/yamllint.conf exists, this input variable is ignored.
+        required: false
+        type: string
+        default: |
+          ---
+          extends: default
+          rules:
+            line-length: disable
+            truthy: disable
+          ignore: |
+            .kitchen/
+
+jobs:
+  yamllint:
+    name: 'yamllint'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install yamllint
+        run: |
+          sudo apt-get -y install yamllint
+      - name: Run yamllint
+        run: |
+          if [ -f .github/workflows/yamllint.conf ]; then
+            echo ".github/workflows/yamllint.conf exists. Using it."
+          else
+            echo ".github/workflows/yamllint.conf does not exist. Creating it."
+            printf "${{ inputs.config }}" > .github/workflows/yamllint.conf
+          fi
+
+          echo "Using the following configuration:"
+          cat .github/workflows/yamllint.conf
+          yamllint -c .github/workflows/yamllint.conf
