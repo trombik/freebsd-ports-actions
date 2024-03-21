@@ -37,27 +37,45 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Restore packages cache
-      uses: actions/cache/restore@v3.3.2
+      uses: actions/cache/restore@v4
       id: cache-restore-packages
       with:
 
         # key is mandatory, but we do not know the exact key, which is
         # generated only after the test finishes.
         key: cache-packages-
-        path: '*'
+        path: data.tgz
 
         # Instead, use prefix for the key, which result in using the latest
         # cache.
         restore-keys: |
           cache-packages-
 
+    - name: Restore distfiles cache
+      uses: actions/cache/restore@v4
+      id: cache-restore-distfiles
+      with:
+        key: cache-distfiles-
+        path: distfiles.tgz
+        restore-keys: |
+          cache-distfiles-
+
+    - name: Restore ccache cache
+      uses: actions/cache/restore@v4
+      id: cache-restore-ccache
+      with:
+        key: cache-ccache-
+        path: ccache.tgz
+        restore-keys: |
+          cache-ccache-
+
     - name: Debug
       run: |
+        echo "pwd: `pwd`"
         tree -d
         # When no cache is found, the directory does not exist. Create the
         # path for that case.
         mkdir -p /home/runner/work/poudriere/data/packages
-        tree /home/runner/work/poudriere/data/packages
 
     - name: Test in FreeBSD
       id: test
@@ -106,6 +124,23 @@ jobs:
           TEST_RESULT=1
           echo "pwd: `pwd`"
           tree .
+
+          # Extract data.tgz and distfiles.tgz
+          if [ -f data.tgz ]; then
+            tar -zxvf data.tgz -C /home/runner/work/poudriere/
+            tree -a /home/runner/work/poudriere/data
+            rm data.tgz
+          fi
+          if [ -f distfiles.tgz ]; then
+            tar -zxvf distfiles.tgz -C /home/runner/work
+            tree -a /home/runner/work/distfiles
+            rm distfiles.tgz
+          fi
+          if [ -f ccache.tgz ]; then
+            tar -zxvf ccache.tgz -C /home/runner/work
+            tree -a /home/runner/work/ccache
+            rm ccache.tgz
+          fi
 
           # A list of ports to build
           ORIGINS=`find * -type d -depth 1`
@@ -162,6 +197,17 @@ jobs:
           # Remove jails and ports, takes too long to sync them on host.
           rm -rf /home/runner/work/poudriere/jails /home/runner/work/poudriere/ports
 
+          # Create an archive of `data` and `distfiles`
+          tar -cz -C /home/runner/work/poudriere -f data.tgz data
+          tar -cz -C /home/runner/work -f distfiles.tgz distfiles
+          tar -cz -C /home/runner/work -f ccache.tgz ccache
+
+          # Create a hash file of packages and distfiles
+          find /home/runner/work/poudriere/data/packages | sha256 > PACKAGES.sha256
+          find /home/runner/work/distfiles | sha256 > DISTFILES.sha256
+          find /home/runner/work/ccache | sha256 > CCACHE.sha256
+          tree `pwd`
+
           # Fail the job as poudriere does not exit with non-zero when a build
           # fails.
           if [ ${TEST_RESULT} -eq 1 ]; then
@@ -175,31 +221,21 @@ jobs:
         name: poudriere-logs-${{ github.sha }}-${{ inputs.freebsd_versions }}
         path: /home/runner/work/poudriere/data/logs
 
-
-    - name: Get date
-      id: date
-      run: date +'DATE=%Y-%m-%d' >> "$GITHUB_OUTPUT"
-
     - name: Cache distfiles
-      # Cache distfiles for one day. there is no appropriate keys for ports
-      # development. distfiles change when:
-      #
-      # * the ports tree is updated
-      # * dependency changes
-      # * sources and patches are updated
-      #
-      uses: actions/cache@v4
+      uses: actions/cache/save@v4
       with:
-        path: /home/runner/work/distfiles
-        key: ${{ steps.date.outputs.DATE }}
+        path: distfiles.tgz
+        key: cache-distfiles-${{ hashFiles('DISTFILES.sha256') }}
 
+    - name: Cache ccache
+      uses: actions/cache/save@v4
+      with:
+        path: ccache.tgz
+        key: cache-ccache-${{ hashFiles('CCACHE.sha256') }}
 
-    - name: Create a hash file of packages
-      run: |
-        find /home/runner/work/poudriere/data/packages | sha256sum - > PACKAGES.sha256
 
     - name: Cache packages cache
-      uses: actions/cache/save@v3.3.2
+      uses: actions/cache/save@v4
       with:
-        path: /home/runner/work/poudriere/data/packages
+        path: data.tgz
         key: cache-packages-${{ hashFiles('PACKAGES.sha256') }}
