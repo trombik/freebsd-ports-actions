@@ -40,7 +40,6 @@ jobs:
       uses: actions/cache/restore@v4
       id: cache-restore-packages
       with:
-        path: /home/runner/work/poudriere/data/packages
 
         # key is mandatory, but we do not know the exact key, which is
         # generated only after the test finishes.
@@ -53,6 +52,7 @@ jobs:
 
     - name: Debug
       run: |
+        tree -d
         # When no cache is found, the directory does not exist. Create the
         # path for that case.
         mkdir -p /home/runner/work/poudriere/data/packages
