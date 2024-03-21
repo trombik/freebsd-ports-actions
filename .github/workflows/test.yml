@@ -36,10 +36,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Debug
-      run: |
-        tree /home/runner/work/poudriere/data/packages
-
     - name: Restore packages cache
       uses: actions/cache/restore@v4
       id: cache-restore-packages
@@ -54,6 +50,10 @@ jobs:
         # cache.
         restore-keys: |
           cache-packages-
+
+    - name: Debug
+      run: |
+        tree /home/runner/work/poudriere/data/packages
 
     - name: Test in FreeBSD
       id: test
