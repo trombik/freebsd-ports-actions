@@ -35,6 +35,26 @@ jobs:
     name: Build ports with poudriere
     steps:
     - uses: actions/checkout@v4
+
+    - name: Debug
+      run: |
+        tree /home/runner/work/poudriere/data/packages
+
+    - name: Restore packages cache
+      uses: actions/cache/restore@v4
+      id: cache-restore-packages
+      with:
+        path: /home/runner/work/poudriere/data/packages
+
+        # key is mandatory, but we do not know the exact key, which is
+        # generated only after the test finishes.
+        key: cache-packages-
+
+        # Instead, use prefix for the key, which result in using the latest
+        # cache.
+        restore-keys: |
+          cache-packages-
+
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@v1
@@ -174,8 +194,8 @@ jobs:
       run: |
         find /home/runner/work/poudriere/data/packages | sha256sum - > PACKAGES.sha256
 
-    - name: Cache packages
-      uses: actions/cache@v4
+    - name: Cache packages cache
+      uses: actions/cache/save@v4
       with:
         path: /home/runner/work/poudriere/data/packages
-        key: ${{ hashFiles('PACKAGES.sha256') }}
+        key: cache-packages-${{ hashFiles('PACKAGES.sha256') }}
