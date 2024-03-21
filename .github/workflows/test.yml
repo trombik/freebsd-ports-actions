@@ -37,7 +37,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Restore packages cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v3.3.2
       id: cache-restore-packages
       with:
 
@@ -199,7 +199,7 @@ jobs:
         find /home/runner/work/poudriere/data/packages | sha256sum - > PACKAGES.sha256
 
     - name: Cache packages cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v3.3.2
       with:
         path: /home/runner/work/poudriere/data/packages
         key: cache-packages-${{ hashFiles('PACKAGES.sha256') }}
