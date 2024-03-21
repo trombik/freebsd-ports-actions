@@ -44,6 +44,7 @@ jobs:
         # key is mandatory, but we do not know the exact key, which is
         # generated only after the test finishes.
         key: cache-packages-
+        path: '*'
 
         # Instead, use prefix for the key, which result in using the latest
         # cache.
