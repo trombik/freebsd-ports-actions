@@ -53,6 +53,9 @@ jobs:
 
     - name: Debug
       run: |
+        # When no cache is found, the directory does not exist. Create the
+        # path for that case.
+        mkdir -p /home/runner/work/poudriere/data/packages
         tree /home/runner/work/poudriere/data/packages
 
     - name: Test in FreeBSD
