@@ -8,7 +8,15 @@ name: Build ports with poudriere
 #   └── poudriere
 #       ├── data
 #       ...
-
+#
+# About caches
+# ------------
+#
+# The GitHub Actions, vmactions/freebsd-vm@v1, uses rsync to copy files to and
+# from the guest VM. The flags of rsync being used does not include --links,
+# which does not preserve symlinks. poudriere does use symlinks to manage
+# packages. As such, this workflow does not sorely rely on actions/cache. The
+# workflow creates, and extract, the directories to cache.
 on:
   workflow_call:
     inputs:
