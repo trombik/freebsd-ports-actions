@@ -111,6 +111,7 @@ jobs:
           PORTS_REF="${{ inputs.freebsd_ports_ref }}"
           PACKAGE_BRANCH="latest"
           if [ "${PORTS_REF}" = "quarterly" ]; then
+            PACKAGE_BRANCH="quarterly"
             YEAR=`date +%Y`
             MONTH=`date +%m`
             N_QUARTER=$(expr ${MONTH} / 4 + 1)
