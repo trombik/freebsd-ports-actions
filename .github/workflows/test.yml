@@ -79,6 +79,23 @@ jobs:
         # path for that case.
         mkdir -p /home/runner/work/poudriere/data/packages
 
+    - name: Select package branch
+      id: branch-selector
+      run: |
+        PORTS_REF="${{ inputs.freebsd_ports_ref }}"
+        PACKAGE_BRANCH="latest"
+
+        if [ "${PORTS_REF}" = "quarterly" ]; then
+          PACKAGE_BRANCH="quarterly"
+          YEAR=`date +%Y`
+          MONTH=`date +%m`
+          N_QUARTER=$(expr ${MONTH} / 4 + 1)
+          PORTS_REF="${YEAR}Q${N_QUARTER}"
+        fi
+        echo "PORTS_REF=${PORTS_REF}" >> "$GITHUB_OUTPUT"
+        echo "PACKAGE_BRANCH=${PACKAGE_BRANCH}" >> "$GITHUB_OUTPUT"
+
+
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@v1
@@ -108,15 +125,6 @@ jobs:
           BASEFS=/home/runner/work/poudriere
           " >> /usr/local/etc/poudriere.conf
 
-          PORTS_REF="${{ inputs.freebsd_ports_ref }}"
-          PACKAGE_BRANCH="latest"
-          if [ "${PORTS_REF}" = "quarterly" ]; then
-            PACKAGE_BRANCH="quarterly"
-            YEAR=`date +%Y`
-            MONTH=`date +%m`
-            N_QUARTER=$(expr ${MONTH} / 4 + 1)
-            PORTS_REF="${YEAR}Q${N_QUARTER}"
-          fi
           echo "The contents of /usr/local/etc/poudriere.conf"
           cat /usr/local/etc/poudriere.conf
 
@@ -128,7 +136,7 @@ jobs:
           echo "ARCH=${ARCH}"
           echo "JAIL_NAME=${JAIL_NAME}"
 
-          poudriere ports -c -p default -m git+https -B "${PORTS_REF}"
+          poudriere ports -c -p default -m git+https -B "${{ steps.branch-selector.outputs.PORTS_REF }}"
           poudriere jail -c -j "${JAIL_NAME}" -m ftp -v "${{ inputs.freebsd_versions }}-RELEASE"
 
         run: |
@@ -176,7 +184,7 @@ jobs:
           # is available in the latest branch (-b). Always build ORIGINS (-C).
           # Add some tests (-t).
           echo "Starting build."
-          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b "${PACKAGE_BRANCH}" -z default -t -C ${ORIGINS}
+          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b "${{ steps.branch-selector.outputs.PACKAGE_BRANCH }}" -z default -t -C ${ORIGINS}
 
           poudriere status -fH
           poudriere status -f
