@@ -183,8 +183,11 @@ jobs:
           # Build all ports, including dependencies, but use packages when one
           # is available in the latest branch (-b). Always build ORIGINS (-C).
           # Add some tests (-t).
+          #
+          # Do not fail when the build is not successful because we would like
+          # to see the error log, and cache files.
           echo "Starting build."
-          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b "${{ steps.branch-selector.outputs.PACKAGE_BRANCH }}" -z default -t -C ${ORIGINS}
+          poudriere bulk -j ${JAIL_NAME} -p default -O overlay -b "${{ steps.branch-selector.outputs.PACKAGE_BRANCH }}" -z default -t -C ${ORIGINS} || true
 
           poudriere status -fH
           poudriere status -f
